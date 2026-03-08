@@ -1,70 +1,119 @@
-# Getting Started with Create React App
+# DDVS — Digital Document Verification System (Frontend)
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+React frontend for the Digital Document Verification System. Provides a login portal for authorized users, an admin/issuer dashboard for managing documents, and a public verification page anyone can use to confirm document authenticity.
 
-## Available Scripts
+**Backend repo:** [ddvs](https://github.com/yourusername/ddvs)
 
-In the project directory, you can run:
+---
 
-### `npm start`
+## Pages
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+### Login — `/login`
+- Email and password authentication
+- JWT token stored on successful login
+- Redirects to dashboard
+- Link to public verification page
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### Dashboard — `/dashboard` *(protected)*
+Four tabs based on user role:
 
-### `npm test`
+| Tab | Description |
+|---|---|
+| Documents | View all issued documents with status badges, revoke action |
+| Issue Document | Form to issue a new document with auto-generated verification code |
+| Issuers | View, add, and delete issuers |
+| Verification Logs | Full log of all verification attempts with IP and result |
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### Verify — `/verify` or `/verify/:code`
+- Public page — no login required
+- Enter a verification code manually or via QR code link
+- Returns document details and status: `VALID`, `EXPIRED`, `REVOKED`, or `NOT_FOUND`
+- Color-coded status badges
 
-### `npm run build`
+---
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## Tech Stack
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+| Layer | Technology |
+|---|---|
+| Framework | React 18 |
+| Routing | React Router v6 |
+| HTTP | Axios |
+| Styling | Tailwind CSS v3 |
+| State | React Context API |
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+---
 
-### `npm run eject`
+## Getting Started
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+### Prerequisites
+- Node.js
+- Backend running on `http://localhost:8080`
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### Setup
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+1. Clone the repo:
+```bash
+git clone https://github.com/yourusername/ddvs-frontend.git
+cd ddvs-frontend
+```
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+2. Install dependencies:
+```bash
+npm install
+```
 
-## Learn More
+3. Start the app:
+```bash
+npm start
+```
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+App runs on `http://localhost:3000`
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+---
 
-### Code Splitting
+## Project Structure
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+```
+src/
+├── api/
+│   └── axios.js          # Axios instance with JWT interceptor
+├── components/
+│   ├── DocumentList.jsx  # Documents table with revoke action
+│   ├── IssueDocument.jsx # Issue document form
+│   ├── IssuerList.jsx    # Issuer management
+│   └── VerificationLogs.jsx # Logs table
+├── context/
+│   └── AuthContext.js    # Global auth state
+├── pages/
+│   ├── auth/
+│   │   └── LoginPage.jsx
+│   ├── admin/
+│   │   └── DashboardPage.jsx
+│   └── public/
+│       └── VerifyPage.jsx
+└── utils/
+    └── auth.js           # Token helpers
+```
 
-### Analyzing the Bundle Size
+---
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+## Authentication Flow
 
-### Making a Progressive Web App
+```
+Login → JWT token saved to localStorage
+     → Token attached to every request via Axios interceptor
+     → Protected routes redirect to /login if no token
+     → Logout clears token and redirects
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+---
 
-### Advanced Configuration
+## Verification Flow
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+```
+User enters code → GET /verify/{code}
+               → Backend checks document and logs attempt
+               → Returns status and document details
+               → UI renders color-coded result
+```
