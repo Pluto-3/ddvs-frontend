@@ -7,6 +7,8 @@ const statusStyles = {
     REVOKED: 'bg-red-100 text-red-700',
 };
 
+const BASE_URL = 'http://localhost:8080';
+
 export default function DocumentList() {
     const [documents, setDocuments] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -30,11 +32,15 @@ export default function DocumentList() {
         const reason = prompt('Enter revocation reason:');
         if (!reason) return;
         try {
-            await api.put(`/documents/${id}/revoke`, { reason });
+            await api.put('/documents/' + id + '/revoke', { reason });
             fetchDocuments();
         } catch (err) {
             alert('Failed to revoke document.');
         }
+    };
+
+    const openLink = (path) => {
+        window.open(BASE_URL + path, '_blank');
     };
 
     if (loading) return <p className="text-gray-500 text-sm">Loading documents...</p>;
@@ -68,20 +74,34 @@ export default function DocumentList() {
                                     <td className="px-4 py-3">{doc.issuerName}</td>
                                     <td className="px-4 py-3 font-mono text-xs">{doc.verificationCode}</td>
                                     <td className="px-4 py-3">
-                                        <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${statusStyles[doc.status]}`}>
+                                        <span className={'px-2 py-0.5 rounded-full text-xs font-medium ' + statusStyles[doc.status]}>
                                             {doc.status}
                                         </span>
                                     </td>
                                     <td className="px-4 py-3">{doc.issuedDate}</td>
                                     <td className="px-4 py-3">
-                                        {doc.status === 'VALID' && (
+                                        <div className="flex gap-3 items-center">
                                             <button
-                                                onClick={() => handleRevoke(doc.id)}
-                                                className="text-red-600 hover:underline text-xs"
+                                                onClick={() => openLink('/qr/' + doc.verificationCode)}
+                                                className="text-blue-600 hover:underline text-xs"
                                             >
-                                                Revoke
+                                                QR Code
                                             </button>
-                                        )}
+                                            <button
+                                                onClick={() => openLink('/certificates/' + doc.verificationCode)}
+                                                className="text-green-600 hover:underline text-xs"
+                                            >
+                                                Certificate
+                                            </button>
+                                            {doc.status === 'VALID' && (
+                                                <button
+                                                    onClick={() => handleRevoke(doc.id)}
+                                                    className="text-red-600 hover:underline text-xs"
+                                                >
+                                                    Revoke
+                                                </button>
+                                            )}
+                                        </div>
                                     </td>
                                 </tr>
                             ))}
