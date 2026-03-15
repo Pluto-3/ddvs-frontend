@@ -2,7 +2,7 @@ import axios from 'axios';
 import { getToken } from '../utils/auth';
 
 const api = axios.create({
-    baseURL: 'https://ddvs-backend.onrender.com',
+    baseURL: process.env.REACT_APP_API_URL,
 });
 
 api.interceptors.request.use((config) => {

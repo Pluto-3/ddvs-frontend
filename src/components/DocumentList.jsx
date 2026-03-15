@@ -7,7 +7,7 @@ const statusStyles = {
     REVOKED: 'bg-red-100 text-red-700',
 };
 
-const BASE_URL = 'http://localhost:8080';
+const BASE_URL = 'https://ddvs-backend.onrender.com';
 
 export default function DocumentList() {
     const [documents, setDocuments] = useState([]);
